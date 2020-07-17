@@ -1,0 +1,40 @@
+image: docker:19.03
+
+stages:
+   - deploy
+  
+variables:
+  versao: '2.0'  ## Versão em produção
+
+deploy to dev:
+  stage: deploy
+  tags:
+    - dev
+  before_script:
+    - ls
+    - docker rm -f frontdev
+    - docker rmi frontdevi
+  script:
+    - docker build -t frontdevi .
+    - docker run -d --name frontdev -p 80:80 frontdevi
+  environment:
+    name: DEV
+    url: http://192.168.0.102
+  only:
+    - develop
+
+deploy to production:
+  stage: deploy
+  tags:
+    - prod
+  before_script:
+    - ls
+    - docker rm -f frontprod
+  script:
+    - docker build -t frontprodi:${versao} .
+    - docker run -d --name frontprod -p 80:80 frontprodi:${versao}
+  environment:
+    name: PROD 
+    url: http://192.168.0.101
+  only: 
+    - master
